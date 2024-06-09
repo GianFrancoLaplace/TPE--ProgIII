@@ -2,6 +2,8 @@ package tpe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -18,7 +20,10 @@ public class Servicios {
 	private ArrayList<Tarea> criticas;
 	private ArrayList<Tarea> noCriticas;
 	private TreeMap<Integer, ArrayList<Tarea>> tareasPorPrioridad;
-	private HashMap<String, Procesador> procesadores;
+	private List<Procesador> procesadores;
+	private ArrayList<Tarea> tareas;
+
+	private HashMap<Integer, ArrayList<Tarea>> tareasPorPrioridadHASH;
 	/*
 	 * Expresar la complejidad temporal del constructor.
 	 */
@@ -29,9 +34,11 @@ public class Servicios {
         this.criticas = new ArrayList<>();
         this.noCriticas = new ArrayList<>();
         this.tareasPorPrioridad = new TreeMap<>();
-		this.procesadores = new HashMap<>();
+		this.tareasPorPrioridadHASH = new HashMap<>();
+		this.procesadores = new LinkedList<>();
+		this.tareas = new ArrayList<>();
 		CSVReader.readProcessors(pathProcesadores, procesadores);
-		CSVReader.readTasks(pathTareas, tareasPorID, criticas, noCriticas, tareasPorPrioridad);
+		CSVReader.readTasks(pathTareas, tareasPorID, criticas, noCriticas, tareasPorPrioridad, tareasPorPrioridadHASH, tareas);
 		
 	}
 
@@ -68,4 +75,30 @@ public class Servicios {
 
 	}
 
+	public List<Tarea> servicio4(int prioridadInferior, int prioridadSuperior) {
+		Iterator<Integer> it = tareasPorPrioridadHASH.keySet().iterator();
+		ArrayList<Tarea> retorno = new ArrayList<>();
+		
+		while(it.hasNext()){
+			Integer clave = it.next();
+			if(clave >= prioridadInferior && clave <= prioridadSuperior){
+				retorno.addAll(tareasPorPrioridadHASH.get(clave));
+			}			
+		}
+
+		return retorno;
+
+	}
+
+	public Solucion ServicioBack(int tiempoMaximo){
+
+		AsingarTareaProcesadorBacktracking back = new AsingarTareaProcesadorBacktracking(procesadores, tareas, tiempoMaximo);
+		return back.backtracking();
+	}
+
+	public Solucion ServicioGreedy(int tiempoMaximo){
+
+		AsignarTareaProcesadorGreedy g = new AsignarTareaProcesadorGreedy(procesadores, tareas, tiempoMaximo);
+		return g.greedy();
+	}
 }
